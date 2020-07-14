@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="src/main/js/vps.Utils.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.GeometryUtils.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Coord2d.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Coord3d.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Vector3d.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Rotation.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.TransformationMatrix.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.RotationTransformationMatrix.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.RotationTransformationFactory.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.TranslationTransformationMatrix.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Polygon.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Vertex.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Polygon3.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Polygon4.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.ObjectManager.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Camera.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.lights.Light.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.lights.DirectionalLight.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.lights.OmniLight.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.FlatShader.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Timer.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.SceneRenderer.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.WorldObject.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.worldobjects.Cube.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.worldobjects.Coriolis.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.worldobjects.Python.js"></script>		
+		<script type="text/javascript" src="src/main/js/vps.worldobjects.Checkerboard.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.worldobjects.Canyon.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.Behaviour.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.BehaviourState.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.behaviours.Orbit.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.behaviours.Transition.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.behaviours.LinearTransition.js"></script>
+		<script type="text/javascript" src="src/main/js/vps.behaviours.CosineTransition.js"></script>
+		
+	</head>
+	<body>
+
+		<canvas id="canvas" height="500" width="1000" style="background-color: black;"></canvas>
+		<table class="info">
+			<thead>
+				<tr>
+					<th colspan="2">Current State</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+				<th>Camera Position</th>
+				<td>
+					<div id="cameraPosition"></div>
+				</td>
+			</tr>
+			<tr>
+				<th>Camera Rotation</th>
+				<td>
+					<div id="cameraRotation"></div>
+				</td>
+			</tr>
+			<tr>
+				<th>Ambient Light</th>
+				<td>
+					<div id="ambientLight"></div>
+				</td>
+			</tr>
+			<tr>
+				<th>Omni Light</th>
+				<td>
+					<div id="omniLight"></div>
+				</td>
+			</tr>
+			<tr>
+				<th>Directional Light</th>
+				<td>
+					<div id="directionalLight"></div>
+				</td>
+			</tr>
+			</tbody>
+			
+		</table>
+		
+		<table class="info">
+			<thead>
+				<tr>
+					<th colspan="3">Performance stats</th>	
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>Frames / second</th>
+					<td>
+						<div id="fps"></div>
+					</td>
+				</tr>
+				<tr>
+					<th>ObjectManager.updateAll</th>
+					<td><div id="timerObjectManagerUpdateAll"></div></td>
+				</tr>
+				<tr>
+					<th>ObjectManager.drawAll</th>
+					<td><div id="timerObjectManagerDrawAll"></div></td>
+				</tr>
+				<tr>
+					<th>Drawn polygon count</th>
+					<td><div id="drawnPolygonCount"></div></td>
+				</tr>
+			</tbody>
+		</table>
+		<style>
+		
+		/* first for IE 4-8 */
+		@font-face {
+		  font-family: DINWebPro;
+		  src: url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro.eot");
+		}
+		
+		/* then for WOFF-capable browsers */
+		@font-face {
+		  font-family: DINWebPro;
+		  src: local("?"), url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro.woff") format("woff");
+		}
+		
+		
+		
+		@font-face {
+		  font-family: DINWebPro-Medium;
+		  src: url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro-Medium.eot");
+		}
+		
+		/* then for WOFF-capable browsers */
+		@font-face {    
+		  font-family: DINWebPro-Medium;
+		  src: local("?"), url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro-Medium.woff") format("woff");
+		}
+		
+		
+		@font-face {
+		  font-family: DINWebPro-Bold;
+		  src: url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro-Bold.eot");
+		}
+		
+		/* then for WOFF-capable browsers */
+		@font-face {
+		  font-family: DINWebPro-Bold;
+		  src: local("?"), url("http://www.vantagepointsolutions.co.uk/styles/fonts/DINWebPro-Bold.woff") format("woff");
+		}
+			
+		
+			body, td, td {
+				font-family:DINWebPro, times,tahoma, arial;
+				font-size: 10px;
+			}
+			
+			table {
+				border-collapse:collapse;
+				border: 1px solid #dddddd;
+			}
+			
+			table.info {
+				width: 450px;
+				margin: 10px;
+				float: left;
+			}
+			
+			tbody th {
+				background-color: #fafafa;
+				text-align: right;
+				width: 30%;
+			}
+			
+			thead th {
+				background-color: #eeeeee;
+				text-align: center;
+			}
+			
+			td {
+				border: 1px solid #dddddd;
+				width: 70%;
+			}
+		</style>
+		
+		
+		
+		<div style="float:right;">
+			<table class="info">
+				<thead>
+					<tr>
+						<th colspan="2">Controls</th>	
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>Rotate Camera</th>
+						<td>
+							arrow keys
+						</td>
+					</tr>
+					<tr>
+						<th>Move forward / back</th>
+						<td>
+							a / z
+						</td>
+					</tr>
+					<tr>
+						<th>Ambient Light + / -</th>
+						<td>
+							+ / -
+						</td>
+					</tr>
+					<tr>
+						<th>Toggle show vertices</th>
+						<td>
+							v
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<script>
+			var canvas = document.querySelector('canvas');
+			var ctx = canvas.getContext('2d');
+			ctx.strokeStyle = "#ffffff";
+			ctx.lineCap = "butt";
+			ctx.lineJoin = "round";
+			
+			var base_image = new Image();
+  			base_image.src = 'src/main/images/space.jpg';
+		
+			var oneDegree = Math.PI/180;	
+			var objectManager = new vps.ObjectManager();
+			
+			// Create an array of objects
+			var hue = 0;
+			var count = 0;
+			
+		
+			var obj1 = new vps.worldobjects.Coriolis('obj1', hue, 0.2);
+			obj1.rotation = new vps.Rotation(0,0,0);
+			obj1.rotationSpeed = new vps.Rotation(oneDegree, oneDegree, oneDegree);
+			obj1.position = new vps.Coord3d(300,100,00);
+			objectManager.addObject(obj1);
+			
+			
+			for(i = 4000; i>-240000; i=i-10000){
+				
+				var posx = (Math.random() * 2000)-1000;
+				var posy = Math.random() * 100;
+				
+				var objx = new vps.worldobjects.Coriolis('obj1', Math.random()*360, 0.2);
+				objx.rotation = new vps.Rotation(0,0,0);
+				objx.rotationSpeed = new vps.Rotation(oneDegree, oneDegree, oneDegree);
+				objx.position = new vps.Coord3d(posx,posy,i);
+				objectManager.addObject(objx);
+
+			}		
+			
+			var obj2 = new vps.worldobjects.Python('obj2', 50, 0.2);
+			obj2.rotation = new vps.Rotation(0,0,0);
+			obj2.position = new vps.Coord3d(0,100,0);
+			objectManager.addObject(obj2);
+	
+			//var checkerboard = new vps.worldobjects.Checkerboard('floor', 200, 51, 51, 0, 120, 0.2);
+			var polysize = 200;
+			var polys = 21;
+			
+			
+			for (c=0; c<200; c++){
+				
+				var hue = (c/20)*360;
+				
+				var canyon = new vps.worldobjects.Canyon('floor', polysize, polys, polys, -60, hue, 0.2);
+				canyon.position = new vps.Coord3d(0, -500, c*(-1*(polys-1)*polysize));
+				canyon.rotation = new vps.Rotation(0, 0, 0);
+				objectManager.addObject(canyon);
+
+			}
+
+			
+			// A callback which just resets the behaviour so the orbit starts again
+			var callbackFunc = function(){
+				console.log('in callback');
+				//this.currentTime = -300;
+				//var start = this.startState;
+				//var end = this.endState;
+				
+				//this.end = start;
+				//this.start = end;
+				
+				this.currentTime = 0;
+				
+			};
+			
+			// var orbit = new vps.behaviours.Orbit(new vps.Coord3d(0,0,0), 800, 300, callbackFunc);
+
+			var transition = new vps.behaviours.CosineTransition(
+					new vps.BehaviourState(new vps.Coord3d(-200,300,0), new vps.Rotation(180*oneDegree, 20*oneDegree, 20*oneDegree)), 
+					new vps.BehaviourState(new vps.Coord3d(200,0,0), new vps.Rotation(180*oneDegree, -20*oneDegree, +20*oneDegree)), 
+					300, 
+					callbackFunc);
+							 
+			// A camera object
+			var cameraPosition = new vps.Coord3d(0,0,+3000);	// A bit back from origin
+			var cameraRotation = new vps.Rotation(0,180*oneDegree,0);		// Along Z axis
+			var viewerPosition = new vps.Coord3d(-200,0,0);		// A bit back from camera position
+			var camera = new vps.Camera (cameraPosition, cameraRotation, viewerPosition);
+			
+			// A shader
+			var shader = new vps.FlatShader();
+			
+			// Some lights 
+			var omniLight1 = new vps.lights.OmniLight("omni", 5.0, new vps.Coord3d(0, 240, 0), 12000);
+			var omniLight2 = new vps.lights.OmniLight("omni2", 5.0, new vps.Coord3d(0, 3000, 0), 5000);
+			var directionalLight = new vps.lights.DirectionalLight("directional", 1.0, new vps.Vector3d(1, -1, 1));
+			var ambientLight = new vps.lights.Light("ambient", 0.05);
+			var lights = [ambientLight, omniLight1, omniLight2];
+
+			// A scene renderer
+			var sceneRenderer = new vps.SceneRenderer(ctx, camera, shader);
+			
+			// Elements for debug readout
+			var fpsOut = document.getElementById('fps');
+			var cameraPositionOut = document.getElementById('cameraPosition');
+			var cameraRotationOut = document.getElementById('cameraRotation');
+			var ambientLightOut = document.getElementById('ambientLight');
+			var omniLightOut = document.getElementById('omniLight');
+			var directionalLightOut = document.getElementById('directionalLight');
+			var drawnPolygonCountOut = document.getElementById('drawnPolygonCount');
+			
+			var timerObjectManagerUpdateAllOut = document.getElementById('timerObjectManagerUpdateAll');
+			var timerObjectManagerDrawAllOut = document.getElementById('timerObjectManagerDrawAll');
+			
+			// Turning
+			var yturn = 0;
+			var xturn = 0; 
+			
+			// This is the body of the 'game loop'
+			var updateAndDraw = function () {
+
+				vps.GeometryUtils.moveInFacingDirection(cameraPosition, cameraRotation, 50);
+
+				transition.apply(obj2);
+				transition.update();
+				obj2.position.z = cameraPosition.z-1000;
+				
+				omniLight2.position.x = obj2.position.x;
+				omniLight2.position.y = obj2.position.y+1000;
+				omniLight2.position.z = obj2.position.z-2000;
+				
+				omniLight1.position.z = obj2.position.z+1000;
+				
+				cameraPositionOut.innerHTML = cameraPosition.toString();
+				omniLightOut.innerHTML = omniLight1.toString() + '<br/>' + omniLight2.toString();
+
+				//orbit.apply(omniLight1);
+				//orbit.update();
+
+				objectManager.updateAll(camera);
+				//ctx.drawImage(base_image, 0, 0);
+
+				ctx.clearRect(0, 0, 1000, 500);
+				var drawnPolyCount = objectManager.drawAll(sceneRenderer, lights);
+				
+				drawnPolygonCountOut.innerHTML = drawnPolyCount;
+				
+				timerObjectManagerUpdateAllOut.innerHTML = vps.Timer.getTime('ObjectManager.updateAll');
+				timerObjectManagerDrawAllOut.innerHTML = vps.Timer.getTime('ObjectManager.drawAll');
+				
+			};
+			
+			
+			cameraRotationOut.innerHTML = cameraRotation.toString() + '  ('+xturn+','+yturn+')';			
+			ambientLightOut.innerHTML = ambientLight.toString();
+			omniLightOut.innerHTML = omniLight1.toString() + '<br/>' + omniLight2.toString();
+			directionalLightOut.innerHTML = directionalLight.toString();
+			
+			// Calculate FPS every second
+			setInterval(function(){ 
+				var fps = objectManager.fps.toFixed(1);
+				fpsOut.innerHTML = fps; 
+				
+			}, 2000); 
+			
+			// Update screen 30x per second
+			window.setInterval(function(){
+				updateAndDraw();
+			},20);
+			
+			
+			document.onkeydown=(function(e){
+				var key=(typeof event!='undefined')?window.event.keyCode:e.keyCode;
+	
+				// Turning left and right
+				if(key==39){
+					cameraRotation.y = cameraRotation.y - oneDegree*2;		
+				}
+
+				if(key==37){
+					cameraRotation.y = cameraRotation.y + oneDegree*2;		
+
+				}
+
+				// Looking up and down
+				if(key==38){
+					cameraRotation.x = cameraRotation.x - oneDegree*2;		
+
+				}
+				if(key==40){
+					cameraRotation.x = cameraRotation.x + oneDegree*2;		
+
+				}
+				
+				cameraRotationOut.innerHTML = cameraRotation.toString() + '  ('+xturn+','+yturn+')';
+				
+				// Move the camera in the direction it's facing
+				if(key==65){
+					vps.GeometryUtils.moveInFacingDirection(cameraPosition, cameraRotation, 100);
+					cameraPositionOut.innerHTML = cameraPosition.toString();
+				}
+				if(key==90){
+					vps.GeometryUtils.moveInFacingDirection(cameraPosition, cameraRotation, -100);
+					cameraPositionOut.innerHTML = cameraPosition.toString();
+				}
+				
+				// Change lighting direction
+				if(key==49){
+					directionalLight.vectorDirection = new vps.Vector3d(0, 0, 1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==50){
+					directionalLight.vectorDirection = new vps.Vector3d(0, 1, 0);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==51){
+					directionalLight.vectorDirection = new vps.Vector3d(1, 0, 0);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==52){
+					directionalLight.vectorDirection = new vps.Vector3d(1, 0, 1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==53){
+					directionalLight.vectorDirection = new vps.Vector3d(1, 1, 1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==54){
+					directionalLight.vectorDirection = new vps.Vector3d(-1, -1, 1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==55){
+					directionalLight.vectorDirection = new vps.Vector3d(-1, -1, 1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				if(key==56){
+					directionalLight.vectorDirection = new vps.Vector3d(1, 0, -1);
+					directionalLightOut.innerHTML = directionalLight.toString();
+				}
+				
+				
+				// Change the ambient light level
+				if(key==173 || key==189){
+					ambientLight.brightness -= 0.1;
+					ambientLightOut.innerHTML = ambientLight.brightness;
+				}
+				if(key==61 || key==187){
+					ambientLight.brightness += 0.1;
+					ambientLightOut.innerHTML = ambientLight.brightness;
+				}
+				
+				// Toggle drawing of vertices
+				if(key==86){
+					sceneRenderer.drawVertices = !sceneRenderer.drawVertices;
+				}
+				
+				console.log(key);
+
+			});
+			
+		</script>
+		
+		
+			
+	</body>
+</html>
